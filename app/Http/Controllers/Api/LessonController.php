@@ -7,6 +7,7 @@ use App\Http\Resources\LessonResource;
 use App\Models\Course;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class LessonController extends Controller
@@ -134,6 +135,57 @@ class LessonController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Lesson deleted successfully',
+        ], 200);
+    }
+
+
+    // PATCH /api/courses/{course}/lessons/reorder
+    public function reorder(Request $request, Course $course)
+    {
+        if ($course->user_id !== $request->user()->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not authorized to reorder lessons in this course',
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'lessons' => 'required|array|min:1',
+            'lessons.*.id' => 'required|integer|exists:lessons,id',
+            'lessons.*.order' => 'required|integer|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        // নিরাপত্তা: পাঠানো সব lesson id আসলেই এই course এর কিনা, তা যাচাই করো
+        $lessonIds = collect($request->lessons)->pluck('id');
+        $validCount = $course->lessons()->whereIn('id', $lessonIds)->count();
+
+        if ($validCount !== $lessonIds->count()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'One or more lessons do not belong to this course',
+            ], 422);
+        }
+
+        // একসাথে সব update — transaction দিয়ে wrap করা (all-or-nothing)
+        DB::transaction(function () use ($request) {
+            foreach ($request->lessons as $item) {
+                Lesson::where('id', $item['id'])->update(['order' => $item['order']]);
+            }
+        });
+
+        $updatedLessons = $course->lessons; // relationship-এ orderBy আছে, তাই এমনিতেই sorted আসবে
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lessons reordered successfully',
+            'data' => LessonResource::collection($updatedLessons),
         ], 200);
     }
 }

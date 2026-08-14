@@ -16,6 +16,9 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
+    Route::patch('/courses/{course}/lessons/reorder', [LessonController::class, 'reorder']);
+
+
     Route::apiResource('courses', CourseController::class);
 
     // Nested route: courses এর ভিতরে lessons
