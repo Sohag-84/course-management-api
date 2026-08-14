@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CourseResource;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -16,7 +17,7 @@ class CourseController extends Controller
     public function index()
     {
         $course = Course::with('user:id,name')->latest()->paginate(perPage: 10);
-        return response()->json(data: [$course], status: 200);
+        return response()->json(data: [CourseResource::collection($course)], status: 200);
     }
 
     /**
@@ -48,11 +49,11 @@ class CourseController extends Controller
             'price' => $request->price,
             'is_published' => $request->is_published ?? false
         ]);
-
+        $course->load('user:id,name');
         return response()->json([
             "success" => true,
             'message' => "Course created successfully",
-            'data' => $course
+            'data' => new CourseResource($course)
         ], status: 201);
     }
 
@@ -65,7 +66,7 @@ class CourseController extends Controller
         $course->load('user:id,name');
         return response()->json([
             'success' => true,
-            'data' => $course,
+            'data' => new CourseResource($course)
         ], 200);
     }
 
@@ -100,7 +101,7 @@ class CourseController extends Controller
         return response()->json([
             'success' => true,
             'message' => "Course updated successfully",
-            'data' => $course
+            'data' => new CourseResource($course)
         ], 200);
     }
 
@@ -122,7 +123,7 @@ class CourseController extends Controller
         return response()->json([
             'success' => true,
             "message" => "Course deleted successfully",
-            'data' => $course
+            'data' => new CourseResource($course)
         ], 200);
     }
 }
