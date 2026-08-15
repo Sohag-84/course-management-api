@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\EnrollmentController;
 use App\Http\Controllers\Api\LessonController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,12 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::patch('/courses/{course}/lessons/reorder', [LessonController::class, 'reorder']);
+
+    // Enrollment routes
+    Route::post('/courses/{course}/enroll', [EnrollmentController::class, 'enroll']);
+    Route::delete('/courses/{course}/enroll', [EnrollmentController::class, 'unenroll']);
+    Route::get('/courses/{course}/students', [EnrollmentController::class, 'enrolledStudents']);
+    Route::get('/my-courses', [EnrollmentController::class, 'myEnrolledCourses']);
 
 
     Route::apiResource('courses', CourseController::class);
