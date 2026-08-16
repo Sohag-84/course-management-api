@@ -31,5 +31,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Nested route: courses এর ভিতরে lessons
     Route::apiResource('courses.lessons', LessonController::class);
-    Route::apiResource('courses.reviews',ReviewController::class);
+    Route::apiResource('courses.reviews',ReviewController::class)->except(['show']);
 });

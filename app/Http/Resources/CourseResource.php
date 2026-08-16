@@ -20,6 +20,8 @@ class CourseResource extends JsonResource
                 'id' => $this->whenLoaded('user', fn() => $this->user->id),
                 'name' => $this->whenLoaded('user', fn() => $this->user->name),
             ],
+            'average_rating' => $this->average_rating,
+            'reviews_count' => $this->reviews_count,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
         ];

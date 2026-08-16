@@ -47,4 +47,16 @@ class Course extends Model
     {
         return $this->hasMany(Review::class);
     }
+
+    protected $appends = ['average_rating', 'reviews_count'];
+
+    public function getAverageRatingAttribute()
+    {
+        return round($this->reviews()->avg('rating') ?? 0, 1);
+    }
+
+    public function getReviewsCountAttribute()
+    {
+        return $this->reviews()->count();
+    }
 }
