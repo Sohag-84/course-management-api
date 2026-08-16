@@ -23,10 +23,16 @@ class LessonController extends Controller
     public function store(Request $request, Course $course)
     {
         //only owners can add lesson
-        if ($course->user_id !== $request->user()->id) {
+        // if ($course->user_id !== $request->user()->id) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'You are not authorized to add lessons to this course',
+        //     ], 403);
+        // }
+        if ($request->user()->cannot('manageLessons', $course)) {
             return response()->json([
                 'success' => false,
-                'message' => 'You are not authorized to add lessons to this course',
+                'message' => 'You are not authorized to manage lessons in this course',
             ], 403);
         }
 
@@ -81,10 +87,16 @@ class LessonController extends Controller
     // PUT/PATCH /api/courses/{course}/lessons/{lesson}
     public function update(Request $request, Course $course, Lesson $lesson)
     {
-        if ($course->user_id !== $request->user()->id) {
+        // if ($course->user_id !== $request->user()->id) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'You are not authorized to update this lesson',
+        //     ], 403);
+        // }
+        if ($request->user()->cannot('manageLessons', $course)) {
             return response()->json([
                 'success' => false,
-                'message' => 'You are not authorized to update this lesson',
+                'message' => 'You are not authorized to manage lessons in this course',
             ], 403);
         }
 
@@ -120,10 +132,16 @@ class LessonController extends Controller
     // DELETE /api/courses/{course}/lessons/{lesson}
     public function destroy(Request $request, Course $course, Lesson $lesson)
     {
-        if ($course->user_id !== $request->user()->id) {
+        // if ($course->user_id !== $request->user()->id) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'You are not authorized to delete this lesson',
+        //     ], 403);
+        // }
+        if ($request->user()->cannot('manageLessons', $course)) {
             return response()->json([
                 'success' => false,
-                'message' => 'You are not authorized to delete this lesson',
+                'message' => 'You are not authorized to manage lessons in this course',
             ], 403);
         }
 
@@ -142,10 +160,16 @@ class LessonController extends Controller
     // PATCH /api/courses/{course}/lessons/reorder
     public function reorder(Request $request, Course $course)
     {
-        if ($course->user_id !== $request->user()->id) {
+        // if ($course->user_id !== $request->user()->id) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'You are not authorized to reorder lessons in this course',
+        //     ], 403);
+        // }
+        if ($request->user()->cannot('manageLessons', $course)) {
             return response()->json([
                 'success' => false,
-                'message' => 'You are not authorized to reorder lessons in this course',
+                'message' => 'You are not authorized to manage lessons in this course',
             ], 403);
         }
 

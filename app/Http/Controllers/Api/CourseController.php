@@ -76,7 +76,14 @@ class CourseController extends Controller
     public function update(Request $request, Course $course)
     {
         //only course owner can update his course
-        if ($request->user()->id !== $course->user_id) {
+        // if ($request->user()->id !== $course->user_id) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'You are not authorized to update this course',
+        //     ], 403);
+        // }
+
+        if ($request->user()->cannot('update', $course)) {
             return response()->json([
                 'success' => false,
                 'message' => 'You are not authorized to update this course',
@@ -111,10 +118,16 @@ class CourseController extends Controller
     public function destroy(Request $request, Course $course)
     {
         //delete single course
-        if ($course->user_id !== $request->user()->id) {
+        // if ($course->user_id !== $request->user()->id) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'You are not authorized to delete this course',
+        //     ], 403);
+        // }
+        if ($request->user()->cannot('delete', $course)) {
             return response()->json([
                 'success' => false,
-                'message' => 'You are not authorized to delete this course',
+                'message' => 'You are not authorized to update this course',
             ], 403);
         }
 
