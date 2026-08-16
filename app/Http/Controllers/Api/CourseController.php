@@ -10,19 +10,57 @@ use Illuminate\Support\Facades\Validator;
 
 class CourseController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     //all course list
-    public function index()
+    public function index(Request $request)
     {
-        $course = Course::with('user:id,name')->latest()->paginate(perPage: 10);
-        return response()->json(data: [CourseResource::collection($course)], status: 200);
+        // $course = Course::with('user:id,name')->latest()->paginate(perPage: 10);
+        $query = Course::with('user:id,name');
+
+        //search: using title and description keywoard
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        //Filter: only published course showing
+        if ($request->filled('is_published')) {
+            $query->where('is_published', $request->boolean('is_published'));
+        }
+        //Filter: min price
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        //Filter: max price
+        if ($request->filled('max_price')) {
+            $query->where('price', "<=", $request->max_price);
+        }
+
+        //Sort
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+        $query->orderBy($sortBy, $sortOrder);
+
+        $courses = $query->paginate(10);
+        return response()->json([
+            'success' => true,
+            'message' => "Fetched courses",
+            'data' => CourseResource::collection($courses->items()), // শুধু course list
+            'pagination' => [
+                'current_page' => $courses->currentPage(),
+                'last_page' => $courses->lastPage(),
+                'per_page' => $courses->perPage(),
+                'total' => $courses->total(),
+                'next_page_url' => $courses->nextPageUrl(),
+                'prev_page_url' => $courses->previousPageUrl(),
+            ],
+        ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(Request $request)
     {
         //create new course
