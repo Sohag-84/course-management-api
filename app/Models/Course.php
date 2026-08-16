@@ -42,4 +42,9 @@ class Course extends Model
             ->withPivot("enrolled_at")
             ->withTimestamps();
     }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
 }

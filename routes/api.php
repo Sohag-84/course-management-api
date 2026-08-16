@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\EnrollmentController;
 use App\Http\Controllers\Api\LessonController;
+use App\Http\Controllers\Api\ReviewController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,4 +31,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Nested route: courses এর ভিতরে lessons
     Route::apiResource('courses.lessons', LessonController::class);
+    Route::apiResource('courses.reviews',ReviewController::class);
 });

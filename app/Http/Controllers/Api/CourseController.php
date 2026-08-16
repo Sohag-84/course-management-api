@@ -48,7 +48,7 @@ class CourseController extends Controller
         return response()->json([
             'success' => true,
             'message' => "Fetched courses",
-            'data' => CourseResource::collection($courses->items()), // শুধু course list
+            'data' => CourseResource::collection($courses->items()),
             'pagination' => [
                 'current_page' => $courses->currentPage(),
                 'last_page' => $courses->lastPage(),
