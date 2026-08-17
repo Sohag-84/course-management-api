@@ -1,59 +1,67 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Course Management REST API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A full-featured RESTful API built with Laravel for managing online courses, lessons, enrollments, and reviews — built as a hands-on learning project covering real-world backend development patterns.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Authentication** — Token-based auth using Laravel Sanctum (register, login, logout)
+- **Course Management** — Full CRUD with ownership-based authorization
+- **Lessons (Nested Resource)** — Course → Lessons relationship with drag-and-drop style reordering
+- **Enrollment System** — Many-to-Many relationship between Users and Courses with pivot data
+- **Ratings & Reviews** — Enrollment-gated reviews with computed average rating per course
+- **Search, Filter, Sort & Pagination** — Query courses by keyword, price range, publish status, and custom sort order
+- **Thumbnail Upload** — Image upload and storage for course thumbnails with old-file cleanup on update
+- **Consistent JSON Responses** — Uniform `{ success, message, data }` structure across all endpoints
+- **Custom Error Handling** — Clean JSON responses for 404 and other exceptions instead of default HTML error pages
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Framework:** Laravel 11+
+- **Database:** MySQL
+- **Authentication:** Laravel Sanctum
+- **API Testing:** Postman
 
-## Learning Laravel
+## Core Concepts Covered
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- RESTful resource controllers & route model binding
+- One-to-Many and Many-to-Many Eloquent relationships
+- Nested API resources & nested routing
+- API Resources for clean response transformation
+- Database transactions for atomic multi-row updates
+- File uploads via `multipart/form-data` and Laravel's method-spoofing (`_method`)
+- Query scoping for search/filter/sort
+- Basic authorization checks and Laravel Policies
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## API Overview
 
-## Laravel Sponsors
+| Resource | Endpoints |
+|---|---|
+| Auth | `POST /api/register`, `POST /api/login`, `POST /api/logout` |
+| Courses | `GET/POST /api/courses`, `GET/PUT/PATCH/DELETE /api/courses/{course}` |
+| Lessons | `GET/POST /api/courses/{course}/lessons`, `.../{lesson}`, `PATCH .../lessons/reorder` |
+| Enrollment | `POST/DELETE /api/courses/{course}/enroll`, `GET /api/my-courses`, `GET /api/courses/{course}/students` |
+| Reviews | `GET/POST/PATCH/DELETE /api/courses/{course}/reviews` |
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+All endpoints (except register/login) require a Bearer token from Sanctum.
 
-### Premium Partners
+## Setup
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+git clone <repo-url>
+cd course-api
+composer install
+cp .env.example .env
+php artisan key:generate
+```
 
-## Contributing
+Configure your `.env` database credentials, then:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+php artisan migrate
+php artisan storage:link
+php artisan serve
+```
 
-## Code of Conduct
+## Status
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+🚧 Actively being built as a learning project — new features and refinements added incrementally.
