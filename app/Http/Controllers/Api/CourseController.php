@@ -7,6 +7,8 @@ use App\Http\Resources\CourseResource;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+
 
 class CourseController extends Controller
 {
@@ -69,7 +71,8 @@ class CourseController extends Controller
             "description" => "nullable|string",
             "duration" => 'nullable|string|max:100',
             'price' => "required|numeric|min:0",
-            'is_published' => 'boolean'
+            'is_published' => 'nullable|in:0,1,true,false',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -79,14 +82,22 @@ class CourseController extends Controller
             ], status: 422);
         }
 
-        $course = Course::create([
+        $data = [
             'user_id' => $request->user()->id,
             'title' => $request->title,
             'description' => $request->description,
             'duration' => $request->duration,
             'price' => $request->price,
-            'is_published' => $request->is_published ?? false
-        ]);
+            'is_published' => $request->boolean('is_published'),
+        ];
+
+        if ($request->hasFile('thumbnail')) {
+            $path = $request->file('thumbnail')->store('course-thumbnails', 'public');
+            $data['thumbnail'] = $path;
+        }
+
+        $course = Course::create($data);
+
         $course->load('user:id,name');
         return response()->json([
             "success" => true,
@@ -133,7 +144,8 @@ class CourseController extends Controller
             'description' => 'nullable|string',
             "duration" => 'nullable|string|max:100',
             'price' => 'sometimes|required|numeric|min:0',
-            'is_published' => 'boolean'
+            'is_published' => 'nullable|in:0,1,true,false',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -141,8 +153,24 @@ class CourseController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-        $course->update($request->only('title', 'description', 'duration', 'price', 'is_published'));
+        // $course->update($request->only('title', 'description', 'duration', 'price', 'is_published'));
+        $data = $request->only(['title', 'description', 'duration', 'price']);
 
+        if ($request->has('is_published')) {
+            $data['is_published'] = $request->boolean('is_published');
+        }
+
+        if ($request->hasFile('thumbnail')) {
+            //delete old thumbnail if have in the db
+            if ($course->thumbnail) {
+                Storage::disk('public')->delete($course->thumbnail);
+                // \Storage::disk('public')->delete($course->thumbnail);
+            }
+            $path = $request->file('thumbnail')->store('course-thumbnails', 'public');
+            $data['thumbnail'] = $path;
+        }
+
+        $course->update($data);
         return response()->json([
             'success' => true,
             'message' => "Course updated successfully",
@@ -165,8 +193,12 @@ class CourseController extends Controller
         if ($request->user()->cannot('delete', $course)) {
             return response()->json([
                 'success' => false,
-                'message' => 'You are not authorized to update this course',
+                'message' => 'You are not authorized to delete this course',
             ], 403);
+        }
+        // Delete thumbnail from storage
+        if ($course->thumbnail) {
+            Storage::disk('public')->delete($course->thumbnail);
         }
 
         $course->delete();

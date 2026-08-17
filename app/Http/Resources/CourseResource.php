@@ -13,6 +13,7 @@ class CourseResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
+            'thumbnail' => $this->thumbnail ? asset('storage/' . $this->thumbnail) : null,
             'duration' => $this->duration,
             'price' => (float) $this->price,
             'is_published' => $this->is_published,
